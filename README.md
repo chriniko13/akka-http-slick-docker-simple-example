@@ -10,9 +10,6 @@ Technologies used:
 
 In order to create it as a docker and run it do the following:
 
-===============================
-            NOTES
-===============================
 1) sbt docker:publishLocal
 
 2) docker run -dit -p 5000:5000 --name akka-http-sample akka-http-sample-with-docker:1.0
