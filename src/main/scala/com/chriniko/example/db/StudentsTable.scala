@@ -13,7 +13,7 @@ class StudentsTable(tag: Tag) extends Table[Student](tag, "STUDENTS") {
   def surname = column[Option[String]]("SURNAME", O.Length(100))
 
   // indexes
-  def surnameIndex = index("STUDENT_EMAIL_IDX", surname, unique = false)
+  def surnameIndex = index("STUDENT_SURNAME_IDX", surname, unique = false)
 
   // select
   def * = (id, firstname, initials, surname) <> (Student.tupled, Student.unapply)
