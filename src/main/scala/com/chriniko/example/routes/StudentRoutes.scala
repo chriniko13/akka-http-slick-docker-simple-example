@@ -10,6 +10,7 @@ import com.chriniko.example.dto.StudentDto
 import com.chriniko.example.infrastructure.CustomMarshallers._
 import com.chriniko.example.models.Student
 
+import scala.annotation.tailrec
 import scala.concurrent.Await
 import scala.concurrent.duration.Duration
 
@@ -28,8 +29,8 @@ class StudentRoutes(implicit val system: ActorSystem) {
     path("surnames") {
       get {
         complete {
-          val res = Await.result(StudentsDao.getAllSurnames(), Duration.Inf)
-          res.distinct
+          val res = Await.result(StudentsDao.getAllSurnames, Duration.Inf).toList
+          ToResponseMarshallable(unique(res))
         }
       }
     } ~ pathPrefix("students") {
@@ -88,6 +89,20 @@ class StudentRoutes(implicit val system: ActorSystem) {
             }
         }
     }
+
+  }
+
+  def unique[A](l: List[A]): Iterable[A] = {
+
+    @tailrec
+    def helper(s: Set[A], ls: List[A]): Iterable[A] =
+      ls match {
+        case head :: tail if s contains head => helper(s, tail)
+        case head :: tail => helper(s + head, tail)
+        case Nil => s
+      }
+
+    helper(Set(), l)
 
   }
 

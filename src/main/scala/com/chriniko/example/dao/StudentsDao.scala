@@ -17,6 +17,14 @@ object StudentsDao extends TableQuery(new StudentsTable(_)) with DbConfiguration
 
   def schemaDeletion(): FixedSqlAction[Unit, NoStream, Effect.Schema] = this.schema.drop
 
+  def init: Future[Unit] = {
+    db.run(schemaCreation())
+  }
+
+  def drop: Future[Unit] = {
+    db.run(schemaDeletion())
+  }
+
   def findById(id: Long): Future[Option[Student]] = {
     db.run(this.filter(st => st.id === id).result).map(s => s.headOption)
   }
@@ -43,11 +51,10 @@ object StudentsDao extends TableQuery(new StudentsTable(_)) with DbConfiguration
     )
   }
 
-  def getAllSurnames(): Future[Vector[String]] = {
+  def getAllSurnames: Future[Vector[String]] = {
     db.run(
       sql"SELECT SURNAME FROM test_slick.STUDENTS".as[String]
     )
   }
 
-  //TODO streaming
 }

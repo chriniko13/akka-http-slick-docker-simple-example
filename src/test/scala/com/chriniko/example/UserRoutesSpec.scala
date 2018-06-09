@@ -9,7 +9,8 @@ import com.chriniko.example.routes.UserRoutes
 import org.scalatest.{Matchers, WordSpec}
 import com.chriniko.example.infrastructure.CustomMarshallers._
 
-class FullTestKitExampleSpec extends WordSpec with Matchers with ScalatestRouteTest {
+// Note: Akka Http Testkit.
+class UserRoutesSpec extends WordSpec with Matchers with ScalatestRouteTest {
 
   val route: Route = new UserRoutes().routes
 
@@ -25,6 +26,10 @@ class FullTestKitExampleSpec extends WordSpec with Matchers with ScalatestRouteT
       Get("/users/1") ~> route ~> check {
         status shouldEqual StatusCodes.OK
         responseAs[User].id shouldBe "1"
+      }
+
+      Get("/users/999") ~> route ~> check {
+        status shouldEqual StatusCodes.BadRequest
       }
     }
 
@@ -59,9 +64,24 @@ class FullTestKitExampleSpec extends WordSpec with Matchers with ScalatestRouteT
 
     }
 
-    //TODO post bad case
-    //TODO get by id bad case
-    //TODO put case
+    "put request work as expected --- good case" in {
+
+      Put("/users/12", UserDto("some_user", Some("email@mail.gr"), Some(26))) ~> route ~> check {
+        status shouldEqual StatusCodes.OK
+        responseAs[User].username shouldBe "some_user"
+        responseAs[User].email.get shouldBe "email@mail.gr"
+        responseAs[User].age.get shouldBe 26
+
+        Get("/users/12") ~> route ~> check {
+          responseAs[User].id shouldBe "12"
+          responseAs[User].username shouldBe "some_user"
+          responseAs[User].email.get shouldBe "email@mail.gr"
+          responseAs[User].age.get shouldBe 26
+        }
+
+      }
+
+    }
 
   }
 
